@@ -2,6 +2,7 @@ package com.narjes.jwt.controller;
 
 import com.narjes.jwt.entity.User;
 import com.narjes.jwt.model.UserModel;
+import com.narjes.jwt.repository.UserRepository;
 import com.narjes.jwt.requests.LoginRequest;
 import com.narjes.jwt.response.jwtResponse;
 import com.narjes.jwt.services.CustomUsersDetailsService;
@@ -25,6 +26,7 @@ public class JwtController {
     private final  CustomUsersDetailsService customUsersDetailsService;
     private final  AuthenticationManager authenticationManager;
     private  final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
     @PostMapping("/register")
     public ResponseEntity<UserModel> register(@RequestBody UserModel userModel){
         UserModel userModel1 = customUsersDetailsService.register(userModel);
@@ -35,9 +37,13 @@ public class JwtController {
     public ResponseEntity<?> generateToken(@RequestBody LoginRequest request)
     {
         //authenticate the user
+        System.out.println("Inside controller");
+
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername() , request.getPassword()));
+
        UserDetails userdetails =  customUsersDetailsService.loadUserByUsername(request.getUsername());
-      String s =   jwtUtil.generateToken(userdetails);
+        System.out.println(userdetails.getUsername());
+        String s =   jwtUtil.generateToken(userdetails);
         jwtResponse response = new jwtResponse(s);
         return ResponseEntity.ok(response);
 

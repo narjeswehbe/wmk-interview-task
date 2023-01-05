@@ -15,16 +15,16 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotNull(message = "name cannot be null")
+   // @NotNull(message = "name cannot be null")
     private String name ;
-    @NotNull(message = "description cannot be null")
+   // @NotNull(message = "description cannot be null")
     private String description;
-    @NotNull(message = "price cannot be null")
+  //  @NotNull(message = "price cannot be null")
     private BigDecimal price;
-    @NotNull(message = "quantity cannot be null")
-    private Long quantity;
-    @NotNull(message = "categories cannot be null")
-    @OneToMany(cascade=CascadeType.ALL)
+   // @NotNull(message = "quantity cannot be null")
+    private int quantity;
+   // @NotNull(message = "categories cannot be null")
+    @OneToMany(cascade=CascadeType.ALL )
     private List<Category> categories ;
 
 

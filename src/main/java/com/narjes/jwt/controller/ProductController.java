@@ -19,17 +19,18 @@ public class ProductController {
     public List<Product> getProductsByCategory(@PathVariable Long id) {
       return productService.getAllByCategory(id);
     }
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_admin')")
     @PostMapping("/create")
     public Product create(@RequestBody Product p) {
+        System.out.println("creating product");
         return productService.create(p);
     }
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_admin')")
     @PutMapping("/update")
     public Product update(@RequestBody Product p) {
         return productService.update(p);
     }
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_admin')")
     @DeleteMapping("/delete/{id}")
     public void delete(@PathVariable Long id) {
         productService.delete(id);

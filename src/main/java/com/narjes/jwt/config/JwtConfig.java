@@ -5,6 +5,7 @@ import com.narjes.jwt.services.CustomUsersDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,22 +27,26 @@ public class JwtConfig extends WebSecurityConfigurerAdapter {
     //control which end points are permitted
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.headers().frameOptions().disable();
+       // http.headers().frameOptions().disable();
         http
                 .csrf()
                 .disable()
                 .cors()
                 .disable()
                 .authorizeRequests()
-                .antMatchers("/api/login"   , "/api/register" , "/api/unrestricted").permitAll()
-                .anyRequest().authenticated().and()
+                 .antMatchers("/api/login", "/api/register").permitAll()//only allow this endpoint without authentication
+                .anyRequest().authenticated()//for any other request, authentication should performed
+                .and()
                 .exceptionHandling().authenticationEntryPoint(jwtAuthEntryPoint)
                 .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        ;
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);//every request should be independent of other and server does not have to manage session
+
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
     }
-   // how the authentication is managed?
+
+
+
+    // how the authentication is managed?
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(customUsersDetailsService).passwordEncoder(passwordEncoder());
