@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 
 
-@RestController()
+@RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class JwtController {
@@ -36,12 +36,13 @@ public class JwtController {
     @PostMapping("/login")
     public ResponseEntity<?> generateToken(@RequestBody LoginRequest request)
     {
+
+
+        UsernamePasswordAuthenticationToken upat = new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
         //authenticate the user
-        System.out.println("Inside controller");
+        authenticationManager.authenticate(upat);
 
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername() , request.getPassword()));
-
-       UserDetails userdetails =  customUsersDetailsService.loadUserByUsername(request.getUsername());
+        UserDetails userdetails =  customUsersDetailsService.loadUserByUsername(request.getUsername());
         System.out.println(userdetails.getUsername());
         String s =   jwtUtil.generateToken(userdetails);
         jwtResponse response = new jwtResponse(s);

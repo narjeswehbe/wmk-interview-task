@@ -14,25 +14,24 @@ import java.util.List;
 @RequestMapping("/api/v1/categories")
 public class CategoryController {
     private final CategoryService categoryService;
+    //returns all categories
     @GetMapping("/")
     public List<Category> getAll() {
         return categoryService.getAll();
     }
-    @GetMapping("/{id}")
-    public Category getCategory(@PathVariable Long id) {
-      return categoryService.get(id);
-    }
+
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
     public Category create(@RequestBody Category c) {
         return categoryService.create(c);
     }
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
+    //update should pass an id with the object
     @PutMapping("/update")
     public Category update(@RequestBody Category c) {
         return categoryService.update(c);
     }
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete/{id}")
     public void delete(@PathVariable Long id) {
         categoryService.delete(id);

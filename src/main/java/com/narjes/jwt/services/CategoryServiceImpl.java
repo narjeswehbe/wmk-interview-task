@@ -24,13 +24,13 @@ public class CategoryServiceImpl implements CategoryService{
 
     @Override
     public void delete(Long id) {
-        Category c = categoryRepository.getById(id);
+        Category c = categoryRepository.getReferenceById(id);
         categoryRepository.delete(c);
     }
 
     @Override
     public Category get(Long id) {
-        return categoryRepository.getById(id);
+        return categoryRepository.getReferenceById(id);
     }
 
     @Override

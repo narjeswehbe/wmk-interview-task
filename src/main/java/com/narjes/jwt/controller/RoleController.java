@@ -15,12 +15,12 @@ public class RoleController {
 
     @Autowired
     private RoleService roleService;
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/roles")
     public RoleModel createRole(@RequestBody RoleModel roleModel){
         return roleService.createRole(roleModel);
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/roles")
     public List<RoleModel> getAllRoles(){
         return roleService.getAllRoles();

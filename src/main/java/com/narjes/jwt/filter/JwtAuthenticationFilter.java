@@ -1,9 +1,12 @@
 package com.narjes.jwt.filter;
 
+
+import com.narjes.jwt.entity.Role;
+import com.narjes.jwt.entity.User;
+import com.narjes.jwt.repository.UserRepository;
 import com.narjes.jwt.services.CustomUsersDetailsService;
 import com.narjes.jwt.util.JwtUtil;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.XSlf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,33 +19,49 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
 //call this filter only once per request
-@RequiredArgsConstructor
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-   private final  CustomUsersDetailsService customUsersDetailsService;
-   private final  JwtUtil jwtUtil;
+
+    @Autowired
+    private CustomUsersDetailsService customUserDetailService;
+    @Autowired
+    private JwtUtil jwtUtil;
+    @Autowired
+    private UserRepository userRepository;
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-        String username;
-        String token;
-        //get jwt token
-        String bearer = request.getHeader("Authorization");
-        //validate the token
-        if(bearer!=null && bearer.startsWith("Bearer"))
-        {
-            token = bearer.substring(7);
+    protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
+        //get the jwt token from request header
+        //validate that jwt token
+        String bearerToken = httpServletRequest.getHeader("Authorization");
+        String username = null;
+        String token = null;
+
+        //check if token exist or has Bearer text
+        if(bearerToken != null && bearerToken.startsWith("Bearer ")){
+
+            //extract jwt token from bearerToken
+            token = bearerToken.substring(7);
+
             try{
-                //extract username from token
+                //extract username from the token
                 username = jwtUtil.extractUsername(token);
-                //get user details
-                UserDetails userDetails = customUsersDetailsService.loadUserByUsername(username);
+                User u = new User();
+                u = userRepository.findUserByUsername(username);
+                System.out.println("==========ROLE===================");
+                for( Role r : u.getRoles())
+                    System.out.println(r.getRoleName());
+
+                //get userdetails for this user
+                UserDetails userDetails = customUserDetailService.loadUserByUsername(username);
+
                 //security checks
                 if(username!=null && SecurityContextHolder.getContext().getAuthentication() == null){
 
                     UsernamePasswordAuthenticationToken upat = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    upat.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    upat.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
 
                     SecurityContextHolder.getContext().setAuthentication(upat);
 
@@ -50,15 +69,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     System.out.println("Invalid Token!!");
                 }
 
-            }catch(Exception e)
-            {
-
+            }catch (Exception ex){
+                ex.printStackTrace();
             }
-
+        }else {
+            System.out.println("Invalid Bearer Token Format!!");
         }
+
         //if all is well forward the filter request to the request endpoint
-        filterChain.doFilter(request, response);
-
-
+        filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 }
